@@ -23,3 +23,10 @@ def overlay(image, x, y, w, h, overlay_image):
     for c in range(0, 3):
         image[y:y + overlay_h, x:x + overlay_w, c] = (overlay_image[:, :, c] * mask_image) + (image[y:y + overlay_h, x:x + overlay_w, c] * (1 - mask_image))
 
+
+# 사진 불러오기
+img = cv2.imread('./image/woman_face.jpg')
+gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+
+# 얼굴 감지
+faces = detector(gray)
