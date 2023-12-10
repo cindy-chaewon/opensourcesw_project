@@ -30,3 +30,39 @@ gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
 # 얼굴 감지
 faces = detector(gray)
+
+for face in faces:
+    x1, y1 = face.left(), face.top()
+    x2, y2 = face.right(), face.bottom()
+
+    # 얼굴 roi 지정
+    face_crop = np.copy(img[y1:y2, x1:x2])
+
+    # 성별 예측하기
+    label, confidence = cv.detect_gender(face_crop)
+
+    idx = np.argmax(confidence)
+    label = label[idx]
+
+    # 랜드마크 감지
+    landmarks = predictor(gray, face)
+
+    # 눈과 코의 위치를 감지하여 overlay 이미지 적용
+    for n in range(36, 48):
+        x = landmarks.part(n).x
+        y = landmarks.part(n).y
+        if n < 42:  # 왼쪽 눈 위치
+            if label == 'male':
+                overlay(img, x, y, x2-x1, y2-y1, image_left_eye_male)
+            else:
+                overlay(img, x, y, x2-x1, y2-y1, image_left_eye_female)
+        elif n < 48:  # 오른쪽 눈 위치
+            if label == 'male':
+                overlay(img, x, y, x2-x1, y2-y1, image_right_eye_male)
+            else:
+                overlay(img, x, y, x2-x1, y2-y1, image_right_eye_female)
+        else:  # 코 위치
+            if label == 'male':
+                overlay(img, x, y, x2-x1, y2-y1, image_nose_male)
+            else:
+                overlay(img, x, y, x2-x1, y2-y1, image_nose_female)
