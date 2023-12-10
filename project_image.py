@@ -26,6 +26,7 @@ def overlay(image, x, y, w, h, overlay_image):
 
 # 사진 불러오기
 img = cv2.imread('./image/woman_face.jpg')
+# img = cv2.imread('./image/man_face.jpg')
 gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
 # 얼굴 감지
@@ -43,6 +44,9 @@ for face in faces:
 
     idx = np.argmax(confidence)
     label = label[idx]
+
+    # 성별 레이블을 이미지의 왼쪽 상단에 추가
+    cv2.putText(img, label, (10, 150), cv2.FONT_HERSHEY_SIMPLEX, 5, (0,255,0), 2)
 
     # 랜드마크 감지
     landmarks = predictor(gray, face)
