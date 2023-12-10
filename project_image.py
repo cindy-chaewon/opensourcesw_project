@@ -66,3 +66,20 @@ for face in faces:
                 overlay(img, x, y, x2-x1, y2-y1, image_nose_male)
             else:
                 overlay(img, x, y, x2-x1, y2-y1, image_nose_female)
+
+# 원하는 최대 너비를 설정합니다. 예를 들어, 800px로 설정했습니다.
+desired_width = 800
+
+# 원본 이미지의 너비와 높이를 가져옵니다.
+original_width, original_height = img.shape[1], img.shape[0]
+
+# 원본 이미지의 너비가 원하는 너비보다 큰 경우에만 크기를 조절합니다.
+if original_width > desired_width:
+    # 원본 이미지의 비율을 유지하면서 크기를 조절합니다.
+    new_height = int(original_height * desired_width / original_width)
+    img = cv2.resize(img, (desired_width, new_height))
+
+
+cv2.imshow("Image", img)
+cv2.waitKey(0)
+cv2.destroyAllWindows()   
