@@ -16,6 +16,7 @@ image_right_eye_female = cv2.imread('./image/right_eye_w.png', cv2.IMREAD_UNCHAN
 image_left_eye_female = cv2.imread('./image/left_eye_w.png', cv2.IMREAD_UNCHANGED)
 image_nose_female = cv2.imread('./image/nose_w.png', cv2.IMREAD_UNCHANGED)
 
+# # 원래코드
 # def overlay(image, x, y, w, h, overlay_image):
 #     overlay_image = cv2.resize(overlay_image, (w//2, h//2))
 #     overlay_h, overlay_w = overlay_image.shape[:2]
@@ -23,25 +24,26 @@ image_nose_female = cv2.imread('./image/nose_w.png', cv2.IMREAD_UNCHANGED)
 #     for c in range(0, 3):
 #         image[y:y + overlay_h, x:x + overlay_w, c] = (overlay_image[:, :, c] * mask_image) + (image[y:y + overlay_h, x:x + overlay_w, c] * (1 - mask_image))
 
-def overlay(image, x, y, w, h, overlay_image):
-    # Calculate the size of the overlay image within the bounds of the base image
-    x_start, x_end = max(x, 0), min(x + w, image.shape[1])
-    y_start, y_end = max(y, 0), min(y + h, image.shape[0])
+def place_overlay(image, x, y, overlay_image):
+    # Calculate the size of the overlay image
+    overlay_h, overlay_w, _ = overlay_image.shape
     
-    # Resize overlay_image to fit within the target coordinates
-    overlay_image = cv2.resize(overlay_image, (x_end - x_start, y_end - y_start))
+    # Calculate the start and end points, ensuring they are within the image bounds
+    x_start, x_end = max(x, 0), min(x + overlay_w, image.shape[1])
+    y_start, y_end = max(y, 0), min(y + overlay_h, image.shape[0])
     
-    # Make sure the resized overlay image is not empty
+    # Cut the overlay image if it goes out of the bounds
+    overlay_image = overlay_image[:y_end-y_start, :x_end-x_start]
+    
+    # Make sure the overlay image is not empty
     if overlay_image.shape[0] > 0 and overlay_image.shape[1] > 0:
         alpha_s = overlay_image[:, :, 3] / 255.0
         alpha_l = 1.0 - alpha_s
         
-        # Ensure that we are within bounds of the image
+        # Overlay the image
         for c in range(0, 3):
             image[y_start:y_end, x_start:x_end, c] = (alpha_s * overlay_image[:, :, c] +
                                                       alpha_l * image[y_start:y_end, x_start:x_end, c])
-
-
 
 # 사진 불러오기
 img = cv2.imread('./image/woman_face.jpg')
@@ -110,15 +112,26 @@ for face in faces:
     # Draw bounding box for the nose
     cv2.rectangle(img, (nose_box[0], nose_box[1]), (nose_box[2], nose_box[3]), (0, 255, 0), 2)
 
+    # # Overlay images based on gender
+    # if label == 'male':
+    #     overlay(img, left_eye_box[0], left_eye_box[1], left_eye_box[2]-left_eye_box[0], left_eye_box[3]-left_eye_box[1], image_left_eye_male)
+    #     overlay(img, right_eye_box[0], right_eye_box[1], right_eye_box[2]-right_eye_box[0], right_eye_box[3]-right_eye_box[1], image_right_eye_male)
+    #     overlay(img, nose_box[0], nose_box[1], nose_box[2]-nose_box[0], nose_box[3]-nose_box[1], image_nose_male)
+    # else:
+    #     overlay(img, left_eye_box[0], left_eye_box[1], left_eye_box[2]-left_eye_box[0], left_eye_box[3]-left_eye_box[1], image_left_eye_female)
+    #     overlay(img, right_eye_box[0], right_eye_box[1], right_eye_box[2]-right_eye_box[0], right_eye_box[3]-right_eye_box[1], image_right_eye_female)
+    #     overlay(img, nose_box[0], nose_box[1], nose_box[2]-nose_box[0], nose_box[3]-nose_box[1], image_nose_female)
     # Overlay images based on gender
     if label == 'male':
-        overlay(img, left_eye_box[0], left_eye_box[1], left_eye_box[2]-left_eye_box[0], left_eye_box[3]-left_eye_box[1], image_left_eye_male)
-        overlay(img, right_eye_box[0], right_eye_box[1], right_eye_box[2]-right_eye_box[0], right_eye_box[3]-right_eye_box[1], image_right_eye_male)
-        overlay(img, nose_box[0], nose_box[1], nose_box[2]-nose_box[0], nose_box[3]-nose_box[1], image_nose_male)
+        place_overlay(img, left_eye_box[0], left_eye_box[1] - 200 - image_left_eye_female.shape[0], image_left_eye_male)
+        place_overlay(img, right_eye_box[0], right_eye_box[1] - 200 - image_right_eye_female.shape[0], image_right_eye_male)
+        nose_bottom_y = nose_box[3]
+        place_overlay(img, nose_box[0] - 70, nose_bottom_y - image_nose_female.shape[0], image_nose_male)
     else:
-        overlay(img, left_eye_box[0], left_eye_box[1], left_eye_box[2]-left_eye_box[0], left_eye_box[3]-left_eye_box[1], image_left_eye_female)
-        overlay(img, right_eye_box[0], right_eye_box[1], right_eye_box[2]-right_eye_box[0], right_eye_box[3]-right_eye_box[1], image_right_eye_female)
-        overlay(img, nose_box[0], nose_box[1], nose_box[2]-nose_box[0], nose_box[3]-nose_box[1], image_nose_female)
+        place_overlay(img, left_eye_box[0], left_eye_box[1] - 200 - image_left_eye_female.shape[0], image_left_eye_female)
+        place_overlay(img, right_eye_box[0], right_eye_box[1] - 200 - image_right_eye_female.shape[0], image_right_eye_female)
+        nose_bottom_y = nose_box[3]
+        place_overlay(img, nose_box[0] - 70, nose_bottom_y - image_nose_female.shape[0], image_nose_female)
 
 
 # 원하는 최대 너비를 설정합니다. 예를 들어, 800px로 설정했습니다.
@@ -137,5 +150,3 @@ if original_width > desired_width:
 cv2.imshow("Image", img)
 cv2.waitKey(0)
 cv2.destroyAllWindows()   
-
-
