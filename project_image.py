@@ -2,19 +2,29 @@ import cv2
 import cvlib as cv
 import numpy as np
 import dlib
+import random
 
 # dlib 얼굴 감지기와 랜드마크 감지기 불러오기
 detector = dlib.get_frontal_face_detector()
 predictor = dlib.shape_predictor('shape_predictor_68_face_landmarks.dat')
 
-# overlay 이미지 불러오기
-image_right_eye_male = cv2.imread('./image/right_eye.png', cv2.IMREAD_UNCHANGED)
-image_left_eye_male = cv2.imread('./image/left_eye.png', cv2.IMREAD_UNCHANGED)
-image_nose_male = cv2.imread('./image/nose.png', cv2.IMREAD_UNCHANGED)
+# # overlay 이미지 불러오기
+image_right_eye_male = cv2.imread('./image/right_eye_1.png', cv2.IMREAD_UNCHANGED)
+image_left_eye_male = cv2.imread('./image/left_eye_1.png', cv2.IMREAD_UNCHANGED)
+image_nose_male = cv2.imread('./image/nose_1.png', cv2.IMREAD_UNCHANGED)
 
 image_right_eye_female = cv2.imread('./image/right_eye_w.png', cv2.IMREAD_UNCHANGED)
 image_left_eye_female = cv2.imread('./image/left_eye_w.png', cv2.IMREAD_UNCHANGED)
 image_nose_female = cv2.imread('./image/nose_w.png', cv2.IMREAD_UNCHANGED)
+
+# overlay 이미지 불러오기 (이지우님)
+image_right_eye_male_1 = cv2.imread('./image/horn_right.png', cv2.IMREAD_UNCHANGED)
+image_left_eye_male_1 = cv2.imread('./image/horn_left.png', cv2.IMREAD_UNCHANGED)
+image_nose_male_1 = cv2.imread('./image/Moodang_1.png', cv2.IMREAD_UNCHANGED)
+
+image_right_eye_female_1 = cv2.imread('./image/snata_hat.png', cv2.IMREAD_UNCHANGED)
+image_left_eye_female_1 = cv2.imread('./image/snata_hat.png', cv2.IMREAD_UNCHANGED)
+image_nose_female_1 = cv2.imread('./image/Moodang_1.png', cv2.IMREAD_UNCHANGED)
 
 # # 원래코드
 # def overlay(image, x, y, w, h, overlay_image):
@@ -47,7 +57,7 @@ def place_overlay(image, x, y, overlay_image):
 
 # 사진 불러오기
 img = cv2.imread('./image/woman_face.jpg')
-# img = cv2.imread('./image/man_face.jpg')
+# img = cv2.imread('./image/man_face_1.jpg')
 gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
 # 얼굴 감지
@@ -73,7 +83,7 @@ for face in faces:
     label = label[idx]
 
     # 성별 레이블을 이미지의 왼쪽 상단에 추가
-    cv2.putText(img, label, (10, 150), cv2.FONT_HERSHEY_SIMPLEX, 5, (0,255,0), 2)
+    # cv2.putText(img, label, (10, 150), cv2.FONT_HERSHEY_SIMPLEX, 5, (0,255,0), 2)
 
     # 랜드마크 감지
     landmarks = predictor(gray, face)
@@ -102,15 +112,15 @@ for face in faces:
     left_eye_box = calculate_bounding_box(landmarks, 36, 42)
     right_eye_box = calculate_bounding_box(landmarks, 42, 48)
 
-    # Draw bounding boxes for the eyes
-    cv2.rectangle(img, (left_eye_box[0], left_eye_box[1]), (left_eye_box[2], left_eye_box[3]), (0, 255, 0), 2)
-    cv2.rectangle(img, (right_eye_box[0], right_eye_box[1]), (right_eye_box[2], right_eye_box[3]), (0, 255, 0), 2)
+    # # Draw bounding boxes for the eyes
+    # cv2.rectangle(img, (left_eye_box[0], left_eye_box[1]), (left_eye_box[2], left_eye_box[3]), (0, 255, 0), 2)
+    # cv2.rectangle(img, (right_eye_box[0], right_eye_box[1]), (right_eye_box[2], right_eye_box[3]), (0, 255, 0), 2)
 
     # Calculate bounding box for the nose using the correct landmark indices
     nose_box = calculate_bounding_box(landmarks, 27, 36)
 
-    # Draw bounding box for the nose
-    cv2.rectangle(img, (nose_box[0], nose_box[1]), (nose_box[2], nose_box[3]), (0, 255, 0), 2)
+    # # Draw bounding box for the nose
+    # cv2.rectangle(img, (nose_box[0], nose_box[1]), (nose_box[2], nose_box[3]), (0, 255, 0), 2)
 
     # # Overlay images based on gender
     # if label == 'male':
@@ -121,17 +131,33 @@ for face in faces:
     #     overlay(img, left_eye_box[0], left_eye_box[1], left_eye_box[2]-left_eye_box[0], left_eye_box[3]-left_eye_box[1], image_left_eye_female)
     #     overlay(img, right_eye_box[0], right_eye_box[1], right_eye_box[2]-right_eye_box[0], right_eye_box[3]-right_eye_box[1], image_right_eye_female)
     #     overlay(img, nose_box[0], nose_box[1], nose_box[2]-nose_box[0], nose_box[3]-nose_box[1], image_nose_female)
+    
+    number = random.choice([0, 1])
+    # number = 1
+
     # Overlay images based on gender
     if label == 'male':
-        place_overlay(img, left_eye_box[0], left_eye_box[1] - 200 - image_left_eye_female.shape[0], image_left_eye_male)
-        place_overlay(img, right_eye_box[0], right_eye_box[1] - 200 - image_right_eye_female.shape[0], image_right_eye_male)
-        nose_bottom_y = nose_box[3]
-        place_overlay(img, nose_box[0] - 70, nose_bottom_y - image_nose_female.shape[0], image_nose_male)
+        if number == 0:
+            place_overlay(img, left_eye_box[0], left_eye_box[1] - 200 - image_left_eye_female.shape[0], image_left_eye_male)
+            place_overlay(img, right_eye_box[0], right_eye_box[1] - 200 - image_right_eye_female.shape[0], image_right_eye_male)
+            nose_bottom_y = nose_box[3]
+            place_overlay(img, nose_box[0] - 20, nose_bottom_y - image_nose_female.shape[0], image_nose_male)
+        else:
+            place_overlay(img, left_eye_box[0], left_eye_box[1] - 200 - image_left_eye_female.shape[0], image_left_eye_male_1)
+            place_overlay(img, right_eye_box[0], right_eye_box[1] - 200 - image_right_eye_female.shape[0], image_right_eye_male_1)
+            nose_bottom_y = nose_box[3]
+            place_overlay(img, nose_box[0] - 20, nose_bottom_y - image_nose_female.shape[0], image_nose_male_1)
     else:
-        place_overlay(img, left_eye_box[0], left_eye_box[1] - 200 - image_left_eye_female.shape[0], image_left_eye_female)
-        place_overlay(img, right_eye_box[0], right_eye_box[1] - 200 - image_right_eye_female.shape[0], image_right_eye_female)
-        nose_bottom_y = nose_box[3]
-        place_overlay(img, nose_box[0] - 70, nose_bottom_y - image_nose_female.shape[0], image_nose_female)
+        if number == 0:
+            place_overlay(img, left_eye_box[0], left_eye_box[1] - 200 - image_left_eye_female.shape[0], image_left_eye_female)
+            place_overlay(img, right_eye_box[0], right_eye_box[1] - 200 - image_right_eye_female.shape[0], image_right_eye_female)
+            nose_bottom_y = nose_box[3]
+            place_overlay(img, nose_box[0] - 70, nose_bottom_y - image_nose_female.shape[0], image_nose_female)
+        else:
+            place_overlay(img, left_eye_box[0], left_eye_box[1] - 200 - image_left_eye_female.shape[0], image_left_eye_female_1)
+            place_overlay(img, right_eye_box[0], right_eye_box[1] - 200 - image_right_eye_female.shape[0], image_right_eye_female_1)
+            nose_bottom_y = nose_box[3]
+            place_overlay(img, nose_box[0] - 20, nose_bottom_y - image_nose_female.shape[0], image_nose_female_1)
 
 
 # 원하는 최대 너비를 설정합니다. 예를 들어, 800px로 설정했습니다.
